@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fixed background elements */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                rgba(74, 144, 226, 0.3) 0%,
+                rgba(143, 211, 244, 0.4) 25%,
+                rgba(162, 102, 246, 0.3) 50%,
+                rgba(248, 113, 113, 0.4) 75%,
+                rgba(251, 191, 36, 0.3) 100%);
+            background-size: 400% 400%;
+            animation: gradientFlow 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(255, 255, 255, 0.4), 
+                rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(20px);
+            animation: float 6s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        .orb:nth-child(1) {
+            width: 120px;
+            height: 120px;
+            top: 20%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .orb:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            top: 60%;
+            right: 20%;
+            animation-delay: -2s;
+        }
+
+        .orb:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            bottom: 25%;
+            left: 25%;
+            animation-delay: -4s;
+        }
+
+        .orb:nth-child(4) {
+            width: 60px;
+            height: 60px;
+            top: 40%;
+            right: 35%;
+            animation-delay: -1s;
+        }
+
+        /* Main content container */
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Section styling */
+        .section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 4rem 2rem;
+        }
+
+        /* Top section with translucent background overlay */
+        .section-top {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px) saturate(1.5);
+            -webkit-backdrop-filter: blur(15px) saturate(1.5);
+        }
+
+        /* Middle section with white translucent overlay */
+        .section-middle {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px) saturate(1.5);
+            -webkit-backdrop-filter: blur(15px) saturate(1.5);
+        }
+
+
+
+        /* Text content styling */
+        .text-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-content h2 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .text-content p {
+            color: #4a5568;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+
+        .text-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Back button styling */
+        .back-button {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .back-link {
+            color: rgba(45, 55, 72, 0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 400;
+            padding: 0.8rem 1.5rem;
+            border: 1px solid rgba(45, 55, 72, 0.4);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            letter-spacing: 0.05em;
+        }
+
+        .back-link:hover {
+            color: rgba(45, 55, 72, 1);
+            border-color: rgba(45, 55, 72, 0.7);
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Animations */
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-20px) scale(1.05); opacity: 0.9; }
+        }
+
+        /* Parallax effect */
+        .parallax-element {
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .section {
+                padding: 2rem 1rem;
+            }
+            
+            .text-content {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+            
+            .text-content h2 {
+                font-size: 2rem;
+            }
+            
+            .text-content p {
+                font-size: 1rem;
+            }
+            
+            .back-button {
+                bottom: 1rem;
+            }
+            
+            .back-link {
+                font-size: 0.8rem;
+                padding: 0.6rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed background elements -->
+    <div class="background"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+    
+    <!-- Main content -->
+    <div class="content-wrapper">
+        <!-- Top Section -->
+        <section class="section section-top">
+            <div class="text-content parallax-element">
+                <h2>Welcome to the Journey</h2>
+                <p>This is the first section of our parallax experience. The background maintains its vibrant, translucent quality while providing a beautiful canvas for our content. The floating orbs and gradient animation continue to create depth and movement.</p>
+                <p>As you scroll through this page, you'll notice how the background elements move at different speeds, creating a sense of depth and immersion. This parallax effect adds a modern, dynamic feel to the overall user experience.</p>
+                <p>The text is carefully contained within these glass-like containers, providing excellent readability while maintaining the aesthetic appeal of the translucent design.</p>
+            </div>
+        </section>
+
+        <!-- Middle Section -->
+        <section class="section section-middle">
+            <div class="text-content parallax-element">
+                <h2>Back to Brightness</h2>
+                <p>In this middle section, we return to the original translucent overlay, bringing back the full vibrancy of the background. This creates a nice transition that showcases the colorful animation beneath.</p>
+                <p>The parallax scrolling effect continues to work throughout all sections, with the background elements maintaining their fixed positions while the content flows smoothly over them.</p>
+                <p>This design demonstrates how different levels of transparency can be used to create visual interest while maintaining the dynamic, colorful background that makes this page so engaging.</p>
+            </div>
+        </section>
+
+
+    </div>
+
+    <!-- Back button -->
+    <div class="back-button">
+        <a href="index.html" class="back-link">Back</a>
+    </div>
+
+    <script>
+        // Parallax scrolling effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.5;
+            
+            // Move background elements
+            const background = document.querySelector('.background');
+            background.style.transform = `translateY(${rate}px)`;
+            
+            // Move orbs at different speeds
+            const orbs = document.querySelectorAll('.orb');
+            orbs.forEach((orb, index) => {
+                const speed = (index + 1) * 0.3;
+                orb.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // Mouse movement parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const orbs = document.querySelectorAll('.orb');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            orbs.forEach((orb, index) => {
+                const speed = (index + 1) * 0.3;
+                const x = (mouseX - 0.5) * speed;
+                const y = (mouseY - 0.5) * speed;
+                
+                const currentTransform = orb.style.transform;
+                const scrollOffset = currentTransform.match(/translateY\(([^)]+)\)/);
+                const yOffset = scrollOffset ? scrollOffset[1] : '0px';
+                
+                orb.style.transform = `translateY(${yOffset}) translate(${x}px, ${y}px)`;
+            });
+        });
+
+        // Smooth scrolling for better parallax effect
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>
