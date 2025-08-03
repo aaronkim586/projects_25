@@ -1,239 +1,774 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello Aaron</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>home</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="icon" href="assets/favicon.png" type="image/png">
+<link rel="shortcut icon" href="assets/favicon.png" type="image/png">
 
-        body {
-            height: 100vh;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-            position: relative;
-        }
 
-        /* Animated background with gradient and subtle patterns */
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, 
-                rgba(74, 144, 226, 0.3) 0%,
-                rgba(143, 211, 244, 0.4) 25%,
-                rgba(162, 102, 246, 0.3) 50%,
-                rgba(248, 113, 113, 0.4) 75%,
-                rgba(251, 191, 36, 0.3) 100%);
-            background-size: 400% 400%;
-            animation: gradientFlow 8s ease-in-out infinite;
-            z-index: 1;
-        }
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        /* Floating orbs for depth */
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, 
-                rgba(255, 255, 255, 0.4), 
-                rgba(255, 255, 255, 0.1));
-            backdrop-filter: blur(20px);
-            animation: float 6s ease-in-out infinite;
-            z-index: 2;
-        }
+    body {
+      height: 100vh;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
 
-        .orb:nth-child(1) {
-            width: 120px;
-            height: 120px;
-            top: 20%;
-            left: 15%;
-            animation-delay: 0s;
-        }
+    /* Background */
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg,
+        #6d7eb0 0%, /* muted gray */ 
+        #648DB3 25%, /* muted teal */
+        #4c70d9 50%,  /* muted purple */
+        #648DB3 75%, /* muted teal */
+        #6d7eb0 100%); /* muted gray */ 
+      background-size: 400% 400%;
+      animation: gradientFlow 28s ease-in-out infinite;
+      z-index: 1;
+    }
 
-        .orb:nth-child(2) {
-            width: 80px;
-            height: 80px;
-            top: 60%;
-            right: 20%;
-            animation-delay: -2s;
-        }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%,
+        rgba(255, 255, 255, 0.4),
+        rgba(255, 255, 255, 0.1));
+      backdrop-filter: blur(20px);
+      animation: float 6s ease-in-out infinite;
+      z-index: 2;
+    }
 
-        .orb:nth-child(3) {
-            width: 100px;
-            height: 100px;
-            bottom: 25%;
-            left: 25%;
-            animation-delay: -4s;
-        }
+    .orb:nth-child(2) { width: 120px; height: 120px; top: 20%; left: 15%; animation-delay: 0s; }
+    .orb:nth-child(3) { width: 80px; height: 80px; top: 60%; right: 20%; animation-delay: -2s; }
+    .orb:nth-child(4) { width: 100px; height: 100px; bottom: 25%; left: 25%; animation-delay: -4s; }
+    .orb:nth-child(5) { width: 60px; height: 60px; top: 40%; right: 35%; animation-delay: -1s; }
 
-        .orb:nth-child(4) {
-            width: 60px;
-            height: 60px;
-            top: 40%;
-            right: 35%;
-            animation-delay: -1s;
-        }
+    /* View sections */
+    .view {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      position: absolute;
+      width: 100%;
+      height: 100vh;
+      overflow-y:auto;
+    }
 
-        /* Glass morphism overlay */
-        .glass-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px) saturate(1.5);
-            -webkit-backdrop-filter: blur(15px) saturate(1.5);
-            z-index: 3;
-        }
+    .view.active {
+      display: block;
+      opacity: 1;
+      z-index: 10;
+    }
 
-        /* Main content container */
-        .content {
-            position: relative;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
+    /* Home content */
+    .content {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
 
-        /* Main greeting text */
-        .greeting {
-            font-size: clamp(2.5rem, 8vw, 6rem);
-            font-weight: 300;
-            color: rgba(255, 255, 255, 0.95);
-            text-align: center;
-            letter-spacing: 0.1em;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 1) 0%,
-                rgba(255, 255, 255, 0.8) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: textGlow 3s ease-in-out infinite alternate;
-            margin-bottom: 2rem;
-        }
+    .greeting {
+      font-size: clamp(2.5rem, 8vw, 6rem);
+      font-weight: 300;
+      text-align: center;
+      letter-spacing: 0.1em;
+      background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,255,255,0.8));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.9);
+      animation: textGlow 7s ease-in-out infinite alternate;
+      margin-bottom: 2rem;
+    }
 
-        /* Footer with enter button */
-        .footer {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-        }
+    .footer {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 1rem;
+    }
 
-        .enter-link {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 300;
-            padding: 0.8rem 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            letter-spacing: 0.05em;
-        }
+    .enter-link, #music-btn {
+      color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 0.9rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      letter-spacing: 0.05em;
+      font-weight: 300;
+    }
 
-        .enter-link:hover {
-            color: rgba(255, 255, 255, 1);
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
+    .enter-link:hover, #music-btn:hover {
+      color: white;
+      border-color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
 
-        /* Animations */
-        @keyframes gradientFlow {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
+    /* Page 2 content */
+    .content-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+      gap: 2rem;
+    }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.7; }
-            50% { transform: translateY(-20px) scale(1.05); opacity: 0.9; }
-        }
+    .text-content {
+      width: 100%;
+      max-width: 800px;
+      min-height: 400px;
+      height: 800px; /* fixed height for scrolling */
+      overflow-y: auto; /* enable scroll */
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
 
-        @keyframes textGlow {
-            0% { text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
-            100% { text-shadow: 0 4px 30px rgba(255, 255, 255, 0.3); }
-        }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .greeting {
-                font-size: clamp(2rem, 10vw, 4rem);
-                margin-bottom: 1.5rem;
-            }
-            
-            .footer {
-                bottom: 1rem;
-            }
-            
-            .enter-link {
-                font-size: 0.8rem;
-                padding: 0.6rem 1.2rem;
-            }
-        }
-    </style>
+    .text-content h2 {
+      color: #2d3748;
+      font-size: 2.5rem;
+      font-weight: 300;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .text-content p {
+      color: #4a5568;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      text-align: justify;
+      margin-bottom: 1.5rem;
+    }
+
+    .back-button {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+    }
+
+    .back-link {
+      font-size: 0.9rem;
+      color: rgba(45, 55, 72, 0.8);
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(45, 55, 72, 0.4);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: rgba(45, 55, 72, 1);
+      border-color: rgba(45, 55, 72, 0.7);
+      background: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+      #music-bar {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1000;
+}
+
+#progress-bar {
+  width: 180px;
+  height: 6px;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.2); /* translucent track */
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+#progress-bar::-webkit-slider-thumb {
+  appearance: none;
+}
+
+#progress-bar::-moz-range-thumb {
+  appearance: none;
+  border: none;
+}
+
+#progress-bar::-webkit-slider-runnable-track {
+  height: 6px;
+  background: linear-gradient(to right, white 0%, white 0%, rgba(255, 255, 255, 0.2) 0%);
+  border-radius: 3px;
+}
+
+#next-song {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  transition: transform 0.2s;
+}
+
+#next-song:hover {
+  transform: scale(1.2);
+}
+
+
+
+    /* Animations */
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+      50% { transform: translateY(-20px) scale(1.05); opacity: 0.9; }
+    }
+
+    @keyframes textGlow {
+      0% { text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+      100% { text-shadow: 0 4px 30px rgba(255, 255, 255, 0.3); }
+    }
+
+
+    .section-divider {
+    border-top: 2px solid #444;
+    margin: 24px 0;
+  }
+
+  </style>
 </head>
 <body>
-    <!-- Animated background -->
-    <div class="background"></div>
-    
-    <!-- Floating orbs for depth -->
-    <div class="orb"></div>
-    <div class="orb"></div>
-    <div class="orb"></div>
-    <div class="orb"></div>
-    
-    <!-- Glass morphism overlay -->
-    <div class="glass-overlay"></div>
-    
-    <!-- Main content -->
+  <!-- Background -->
+  <div class="background"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+
+  <!-- Music -->
+  <audio id="bg-music" src="94infinity.mp3" preload="auto"></audio>
+
+  <!-- Home View -->
+  <section id="home" class="view active">
     <div class="content">
-        <h1 class="greeting">hello, aaron.</h1>
+      <h1 class="greeting">hello, ________.</h1>
     </div>
-    
-    <!-- Footer with enter button -->
     <div class="footer">
-        <a href="page2.html" class="enter-link">Enter</a>
+      <a href="#page2" class="enter-link nav-link">Enter</a>
+      <button id="music-btn">Play</button>
     </div>
+  </section>
 
-    <script>
-        // Add subtle mouse movement parallax effect
-        document.addEventListener('mousemove', (e) => {
-            const orbs = document.querySelectorAll('.orb');
-            const mouseX = e.clientX / window.innerWidth;
-            const mouseY = e.clientY / window.innerHeight;
-            
-            orbs.forEach((orb, index) => {
-                const speed = (index + 1) * 0.5;
-                const x = (mouseX - 0.5) * speed;
-                const y = (mouseY - 0.5) * speed;
-                
-                orb.style.transform = `translate(${x}px, ${y}px)`;
-            });
-        });
+  <!-- Page 2 View -->
+  <section id="page2" class="view">
+    <div class="content-wrapper">
+      <div class="text-content">
 
-        // Add click interaction to greeting
-        const greeting = document.querySelector('.greeting');
-        greeting.addEventListener('click', () => {
-            greeting.style.animation = 'none';
-            greeting.offsetHeight; // Trigger reflow
-            greeting.style.animation = 'textGlow 0.5s ease-in-out';
-        });
-    </script>
+        <p style="display: flex; justify-content: center; align-items: center;">academic videos</p>
+
+        <div style="display: flex; justify-content: center; align-items: center;">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/vagUzOK32Po?si=M-VKXehR_PxPtqVd" 
+    title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+<br>
+<div style="display: flex; justify-content: center; align-items: center;">
+<iframe width="315" height="560"
+src="https://youtube.com/embed/YL3_G7ag0XY?feature=shared&autoplay=0"
+title="YouTube video player"
+frameborder="0"
+allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+allowfullscreen></iframe>
+</div>
+<br>
+<br>
+<div style="display: flex; justify-content: center; align-items: center;">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/4pG-8XLLaE0?si=JEXfW1dfB2LkbRNw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+
+
+
+
+</div>
+
+      
+      <div class="text-content">
+<p><strong>An Intersection of 21st Century Asian American Voices</strong><br>
+Edited by Arar Hana and John Hsu<br></p>
+
+<div class="section-divider"></div>
+
+<p><strong>Understanding through Self-Evaluation</strong><br>
+</p>
+
+<p>'In examining ourselves, we started to explore why we identified so strongly with the individual conception of the self.'<br></p>
+
+<p>'What caused us to partly company with many of our Asian American peers and conceptualize Fong as a liberator of sorts - taunting his fellow students out of a trap of stereotypical Asianness and daring them to step out of their racial confines to construct an original identity?'<br></p>
+
+<p>'Why did we believe that we had to transcend our collective identities-such as race, gender, religion, sexuality, and class-in order to realize an authentic personal identity?'<br></p>
+
+<p>'We found neither an established self-analysis of our generation's Asian American identities nor a substantial set of auto-ethnographic books or essays from which we could extrapolate a broad understanding of our race and generation.'<br></p>
+
+<p>'Our society is perhaps more racialistic than the America of the 60s and 70s but it is also characterized by its almost manic celebration of race and culture.<br>
+Like before us, our voices will leave a distinctive legacy by creating a new chapter of history and redefining what it means to be both Asian American and American...'<br></p> 
+<p>"As our case is new, so we must think anew, and act anew" - Abraham Lincoln<br></p>
+
+<div class="section-divider"></div>
+
+<p><strong>Understanding Asian American</strong><br></p>
+
+<p>'... it is important to note that the term 'Asian American' indiscriminately lumps together broadly distinct ethnicities and cultures on the basis of a vague geographical reference.<br>
+Just as there is no singular Asian culture, value system, religion, or history, the internal diverstiy of Asian American culture is as varied as the many cultures of Asia and the stunning diversity of America.'<br></p>
+
+<p>'Moreover, the distinction 'Asian American' often serves as a conveniently powerful mechanism to propagate stereotypes about these different people and cultures.<br>
+As many of our friends have pointed out, our continued use of the category 'Asian American' appears to be paradoxical - an implicit endorsement of a category we recognize as potentially harmful.'<br></p>
+
+<p>'The simplest justification for our continued use of the term 'Asian American' is that the category is an established part of our social vocabulary that powerfully affects everyday lives.<br>
+... an argument put forth by Asian American activists from the 60's: " A distinct Asian American identity has evolved over the years, based on the experiences of Asians in America." '<br></p>
+
+<p>This statement can be unpacked into three broad arguments:<br></p>
+
+<p>'Virtually all Americans of Asian descent label themselves or are labeled by others as Asian Americans, primarily because they possess physical markers of Asian ancestries but also because of their ties to Asian culture.'<br></p>
+
+<p>'Asian Americans share a complex collective racial history riddled with targeted acts of discrimination, such as 'Yellow Peril' at the turn of the twelfth century, laws restricting immigration that lasted until 1965, discriminatory educational laws, and even anti-miscegenation laws.'<br></p>
+
+<p>'Asian Americans are grouped together by current sociopolitical realities.<br>
+In the United States, we are co-classified as a distinct people for numerous purposes, including the census, anthropological study, and admission into higher education and employment.'<br></p>
+
+<div class="section-divider"></div>
+
+<p><strong>The Urgency for Asian American Identity</strong><br>
+<br></p>
+
+<p>'... we learned through self-reflection that individual identity is embedded within many collective identities.'<br> </p>
+<p>'Now, we return again to the individual-collective question to reinforce the idea that we cannot fully claim to be individuals unless we know the ways in which we are not.<br>
+In order to more fully exercise the freedom to be individuals, we must learn what our collective identities are and how we are tied to them; in doing so, we may also become a self-determining collective body of individuals.'<br></p>
+
+<p>'Most important, we must each be willing to be transformed through reflection, dialogue, and action within this collective body.'<br> </p>
+
+<p>'As William Wei elegantly writes, it is in this "crucible of 'Asian America' that [our] individual and group identities are shaped and have integrity." '<br></p>
+
+<p>'Now is an appropriate time for AA in our generation to begin a dialogue on our collective identity, for we find ourselves at a point at which our body is rapidly evolving.<br>
+Census 2000...AA are among the fastest-growing groups in the nation, surging from 6.9 to 11.9 million - a 72 percent increase- in the past decade, growing at more than three times the rate of the entire U.S. population.'<br>
+'We are also disproportionately young and beginning to come of age in large numbers; the 1990 census... half of U.S. born Asian Americans were under the age of fifteen.'<br>
+'AA out-marriage is rising as well, further complicating the composition of the future AA and distancing the AA of today from the AA of the past.'<br>
+Approx. one-third of second generation AA and over one half of third generation AA marry non-Asians, and if current projections hold, one in three AA will be multiracial by the year 2070.'<br>
+'Furthermore, AA are becoming increasingly visible- and powerful- in the media, whether as influential political figures, celebrities, or mainstream sports players.'<br></p>
+
+<p>'All of theses changed point to one end, which is also our beginning: We have arrived at a moment in which the events and experiences of the past have collided with the sociopolitical reality of the present.'<br>
+'The future of what it means to be Asian American, and even American, lies in the successful reconciliation of past and present.'<br>
+Therein lies a crucial dialogue we have coined the 'Asian American X' '.<br></p>
+
+<p>---</p>
+
+<div class="section-divider"></div>
+
+<p><strong>The Making of Asian American X</strong><br>
+<br></p>
+
+
+
+<p>'Asian American X intends to serve as a nexus for a dialogue of our past, present, and future as a collective body of Asian Americans.<br>
+The thirty-five voices we selected to begin the dialogue were chosen from among 170 proposed essays received in response to an emailed call for papers circulated to undergratduate Asian American organizations at over sixty universities between April 2001 and July 2002.<br></p>
+
+<p>The essays are primarily written by first- to third-generation Americans who are in college and hail from middle-class backgrounds.<br>
+Indeed there are significant groups of AA-forinstance- those who have not the resources or opportunity to cintue their education after high school- whose voices are not represented directly and thus are in danger of becoming further marginalized.<br></p>
+
+<p>These essays are not intended to be a comprehensive standard of 'the' AA experience... for no single book could possibly encompass the whole of Asian America... promoting discussion about who AA of our generation are and how we ought to understand ourselves within our current American context...<br>
+Each essay serves as a response to the experiences, themes, and ideas discussed in the previous pieces and also presents new topics that are considered in following essays.<br></p>
+
+<p>All works of self-examination hint at the central issue of being that historian Stephen Scholoesser calls the 'inexorable dialectic' of humanity: to know oneself in a way that 'builds on the past but does not become a captive of it.'<br></p>
+
+<p>It is this dialectic that so many writers before us have joined.<br></p>
+
+<p>It is this dialectic whose inexorability led us to recognize the need for a critical dialogue on AA identity, to embark on the self-reflective journey that became this book, and finally mark this intersection of voices with Asian American X.<br></p>
+
+<p>We now offer to you the result of our work to strengthen our individual and collective identities within the constantly evolving, fluid nature of American identity.<br> </p>
+
+<p>It is by reexamining the roots of our identities and the foundations of our country that we may emerge as unified individuals, mutually strengthened by compassion and sincere respect toward all those around us.<br>
+Particularly during these precarious times of amplified hope and fear, we hope that other will join us in expanding and developing this dialogue to create a new American identity: 'something more complex than either a melting pot or a confederation of separate but equal groups.'<br></p>
+
+<div class="section-divider"></div>
+
+<p>Label Us Angry<br>
+by Jeremiah Torres<br></p>
+
+
+<p>Weeks passed until a court hearing, and Carlos attended anger management counseling, but he was still angry -- angry that he was being tried over throwing a quarter and that once again "the white guys were winning"...<br>
+Carlos was sentenced to a night in juvenile hall and two hundred hours of community service over some angry words and throwing a quarter.<br>
+He became a convicted felon.<br></p>
+
+<p>... He had learned once again that he couldn't win against the labels thrown at him, the labels that hurt him more than the mace or the night in juvy, and so he became more of an outsider.<br>
+In both cases, the labels distanced us from the "normal" Palo Altans: white, clean-cut, wealthy.<br>
+That division didn't always exist, however; it was created by the generalizations "normal" Palo Altans made through labels.<br>
+to them, we looked like lowlifes, chinks, gangsters, and punks.<br>
+In truth, we were two Filipino Americans headed toward Stanford and Berkley, living in a town that swiftly disowned us with four reckless labels after raising us for ten years.<br>
+Label us angry.<br></p>
+
+<div class="section-divider"></div>
+
+<p>1984<br>
+by Sunita Puri<br></p>
+
+
+
+<p>"Well, that's a completely different problem," she said, speaking slowly.<br>
+Turning to the rest of the class, she said, "In-dee-yuh is a place where people are really wild.<br>
+They kill each other all the time."<br></p>
+
+<p>At first, her comments did not register.<br>
+I was so used to nodding at and accepting whatever the teacher said.<br>
+(" Never question her Sunita," my mother would tell me.<br>
+She is giving you knowledge.<br>
+She is tehre to help you.<br>
+It doesn't matter if you like her or not.<br>
+What is there to like or dislike?")<br>
+Just do your work.<br>
+Behave.<br>
+Don't talk in class.<br>
+If you mess up, it's your fault-not the teacher's.<br>
+She has the right to punish you, to question you.<br>
+Because of this very typically Indian attitude toward teachers and education, I had just learned to do whatever I was told, not to be critical of it.<br></p>
+
+<p>But in the midst of my internal nodding, I noticed blonde heads turning and staring at me.<br>
+Even the girls I pushed on the swingset or rode the merry-go-round with looked at me as if I were a headless monster.<br>
+Their blue and brown eyes gazed emptily at me-almost as they had never seen a nonwhite kid before.<br>
+(Well, actually, in this part of Indiana they probably hadn't.)<br></p>
+
+<p>Just then I became aware.<br></p>
+
+<p>... I wanted so desperately to say something, to say no, this is not a country where we kill each other, it is a country of beautiful saris, of food and culture that you could never imagine, of men with turbans who eat with their hands and enjoy it.<br>
+Looking back,  I was very surprised that I had the reaction that I did, and the capability to remember this incident, but the feeling of foreigness, of being an outsider, of being looked at as Someone Who Killed Others, was very real, and very frightening.<br></p>
+
+<p>There, I was the Punjabi girl in Rajasthani colors.<br>
+Many Indias at once.<br></p>
+
+<p>... I have been Here and There since then, separating the two as best as I could.<br>
+I learned the words "stereotype," "racism," and "Orientalism" long after those two days in 1984 had passed.<br>
+But I will always remember the feeling of anger, confusion, and vulnerability in that innocent, sterile classroom that were my own first definitions of these terms, my first experience of a specific type of racial ignorance that I never learned about in classrooms.<br></p>
+
+<p>... I can never forget 1984.<br>
+It revisits me every day, in the glances I ddraw from disapproving white people who think I should "just assimilate," "be normal," and remove my bindi and salwar kameez, replacing them instead with "all-American" jeans and T-shirts.<br></p>
+
+<p>How do I pronounce this anger?<br></p>
+
+<p><em>*They mispronounce my pain.*</em><br></p>
+
+<div class="section-divider"></div>
+
+<p>Death of a Butterfly<br>
+Felix Poon<br></p>
+
+
+<p>the sun soothingly shined,<br>
+reflecting off the bright and blinding beach,<br>
+which consisted of an infinite abyss<br>
+of millions of white grains<br>
+and a single yellow one-<br>
+tranquil as the lapping waves<br>
+blown by the calming breeze.<br></p>
+
+<p>But the waves<br>
+came crashing,<br>
+down,<br>
+with intolerance and insensitivities,<br>
+ignorance and idiocy.<br>
+They bleached its skin and used files<br>
+to shred<br>
+and to scrape<br>
+and to scorch<br>
+the bleach into its skin, <br>
+making it so bright white.<br>
+Pain and agony,<br>
+"racism and hegemony"?<br></p>
+
+<p>---<br></p>
+
+<p>One song, the only one I remember from that class, is the one that goes [God Bless the U.S.A.]<br></p>
+
+<p>Typical grade school propoganda for breeding nationalism that leads to so-called patriotism that whitewashes minds into thinking "democracy" can be achieved by killing some poverty-striken brown-skinned folk in a county whose name we can't pronounce right.<br>
+I swallowed it faithfully with a smile.<br>
+The power of the words caused my skin to freeze over me in shock, tightening like saran wrap.<br>
+The feeling of acceptance and belonging sent chills lining down my spine, tickling me with the sensation of great awe.<br></p>
+
+<p>Ludlow, Massachusetts...Ludlow was the only home I knew.<br>
+My parents were immigrants from Hong Kong, China.<br>
+I, like several of my other classmates, was second-generation American.<br>
+I felt that I had as much claim as my fellow classmates to this wonderful home-*a place of equality created from a diverse melting pot.*<br>
+I felt that I was <em>free</em> like my classmates.<br></p>
+
+<p>... I was the social butterfly, always talking.<br>
+I remember my teachers had discipline problems with me because I talked too much to my fellow classmates.<br>
+I just couldn't stop; I didn't want to stop...<br></p>
+
+<p>One day Mrs. Bynum, in one of her supplemental lessons, made a comment that really confused me.<br>
+"Nobody has black hair," she said.<br>
+Thinking about the power that grade school teachers hold instills grave fear within me today.<br>
+... She had said that <em>nobody</em> has black hair.<br>
+I processed this "lesson" rationally.<br>
+<em>Am I a nobody? Do I not count? If I have black hair, then the sentence 'Nobody has black hair' should be thrown out because I have Black hair. Right?</em><br></p>
+
+<p>... Mrs. Bynum's lessons had a bigger impact on my classmates that it did on me, because from that point on, physical differences were slapped into my self-consciousness by them.<br></p>
+
+<p>---<br></p>
+
+<p>... Everyone's heads turned to look at me.<br>
+I felt like a rare exotic zoo animal on display.<br></p>
+
+<p>Another girl, who had witnessed this, stood up either to defend me or to point out the girl's stupidity.<br>
+"So what? Stupid! Who cares what he is?" she exclaimed.<br>
+I began to feel very awkward that two girls had entered into an argument over my identity as I say idly by, not knowing what to say or how to act.<br></p>
+
+<p>The girl who had pointed out my "Chinese-ness" was taken back in surprise, not sure how to defend her intelligence.<br>
+Eventually she came back with the only retort she could think of:<br>
+"You <em>like</em> him don't you?"<br></p>
+
+<p>"Ew! No, I don't!" the girl in my defense hastily exclaimed.<br></p>
+
+<p>... I was beginning to realize that my black hair, my thin eyes, my flat nose, my different appearance as a Chinese American were truly making me not count.<br>
+Not count as cool?<br>
+As accepted?<br>
+As white?<br>
+I was beginning to realize that I was the object of humiliation not because I was fat, or wore glasses, or for any of the other reasons to be picked on, but because I am.<br>
+Chinese-American... <em>What can I do to be accepted?</em><br></p>
+
+<p>A sense of belonging was unattainable for me.<br>
+I was removed from the social picture, and I was too confused to know what to do about it.<br>
+I was still very book-smart, but I became socially inept.<br>
+I doubted that anyone would car to hear what I had to say, so I didn't say anything at all.<br>
+I went from the most social kid in class to the quietest kid in class in just a couple years.<br>
+I guess Mrs. Bynum's lessons on discipline really worked.<br></p>
+
+<p>---<br></p>
+
+<p>' Yes, how do you say 'mom' in Chinese, Felix? she asked.<br>
+Within only a second, the attention of the twenty-or-so students in the class turned to me as they sharply gazed at me, quietly waiting...<br>
+I felt as if I was the newly appointed spokesperson for all the billions of Chinese people around the world...<br>
+I remained silent; I didn't know what to say.<br>
+"Is something wrong?" Mrs. Gonvalces asked.<br>
+"Is there some rule that you can't tell outsiders what the word 'mom' is?"<br></p>
+
+<p><em>*A rule? How dumb is this question?*</em> ...<br>
+And what did she mean by "outsiders?"<br>
+I was proud to be American... <em>Why would my classmates be outsiders?</em><br></p>
+
+<p>"Well that's good, at least it's similar to <em>our</em> word for mother," my teacher commented.<br>
+<em>Why look at it in that way? Why not look at it as the English word being similar to the Chinese word, and not vice versa?</em><br></p>
+
+<p>They forced my word into being different when it was actually the same.<br>
+The stereotypes that ganged up on me that day forced my Chinese language to be something extremely exotic-something more different than it actually was.<br>
+I couldn't make sense of it at the time.<br>
+I didn't realize the significance of the experience of the answer to the question "why?"<br>
+Now I know why, however.<br>
+They were not only forcing my language to be more different than it actually was-they were force <em>me</em> to be more different from <em>them</em> than I actually was.<br></p>
+
+      </div>
+      
+      <div class="text-content">
+       <p style="display: flex; justify-content: center; align-items: center;">random funny/inspiring</p>
+      </div>
+      
+      <div class="text-content" style="display: flex; justify-content: center;">
+  <iframe 
+    src="https://docs.google.com/forms/d/e/1FAIpQLSc_ovNJoYwMv3G5NGoDNuRp62zenHfnnHBTDyeNQra0lkZARw/viewform?embedded=true" 
+    width="640" 
+    height="407" 
+    frameborder="0" 
+    marginheight="0" 
+    marginwidth="0">
+    Loading…
+  </iframe>
+
+  <p><br></p>
+
+<p style="display: flex; justify-content: center; align-items: center;">community suggestions</p>
+
+</div>
+
+
+
+    </div>
+    <div class="back-button">
+      <a href="#home" class="back-link nav-link">Back</a>
+    </div>
+  </section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const views = document.querySelectorAll('.view');
+    const links = document.querySelectorAll('.nav-link');
+    const audio = document.getElementById('bg-music');
+    const musicBtn = document.getElementById('music-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const nextSongBtn = document.getElementById('next-song');
+
+    let isPlaying = false;
+    const playlist = ["94infinity.mp3"];
+    let currentSongIndex = 0;
+
+    // Navigation
+    function showView(id) {
+      const current = document.querySelector('.view.active');
+      const next = document.getElementById(id);
+      if (current && current !== next) {
+        current.style.opacity = 0;
+        setTimeout(() => {
+          current.classList.remove('active');
+          next.classList.add('active');
+          next.style.opacity = 1;
+        }, 300);
+      } else {
+        next.classList.add('active');
+        next.style.opacity = 1;
+      }
+    }
+
+    links.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = link.getAttribute('href').substring(1);
+        showView(target);
+      });
+    });
+
+    window.addEventListener('hashchange', () => {
+      const target = location.hash.substring(1) || 'home';
+      showView(target);
+    });
+    showView(location.hash.substring(1) || 'home');
+
+    // Music
+    audio.volume = 0.3;
+
+    function updateProgressBar() {
+      if (!audio.duration) return;
+      const percent = (audio.currentTime / audio.duration) * 100;
+      progressBar.value = audio.currentTime;
+      progressBar.max = audio.duration;
+      progressBar.style.background = `linear-gradient(to right, white ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
+    }
+
+    audio.addEventListener('timeupdate', updateProgressBar);
+
+    progressBar.addEventListener('input', () => {
+      audio.currentTime = progressBar.value;
+      updateProgressBar();
+    });
+
+    musicBtn.addEventListener('click', () => {
+      if (!isPlaying) {
+        audio.play();
+        musicBtn.textContent = 'Pause';
+      } else {
+        audio.pause();
+        musicBtn.textContent = 'Play';
+      }
+      isPlaying = !isPlaying;
+    });
+
+    nextSongBtn.addEventListener('click', () => {
+      currentSongIndex = (currentSongIndex + 1) % playlist.length;
+      audio.src = playlist[currentSongIndex];
+      audio.play();
+      musicBtn.textContent = 'Pause';
+      isPlaying = true;
+    });
+
+    audio.addEventListener('ended', () => {
+      musicBtn.textContent = 'Play';
+      isPlaying = false;
+      progressBar.value = 0;
+      progressBar.style.background = `linear-gradient(to right, white 0%, rgba(255,255,255,0.2) 0%)`;
+    });
+  });
+</script>
+
+
+ <!-- /* function updateGreeting() {
+    const greeting = document.querySelector('.greeting');
+    
+    // Get current time in Pacific Time
+    const now = new Date();
+
+    // Convert to Pacific Time (accounts for Daylight Saving)
+    const pacificTime = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(now);
+
+    const hour = parseInt(pacificTime.find(p => p.type === 'hour').value, 10);
+    const minute = parseInt(pacificTime.find(p => p.type === 'minute').value, 10);
+
+    // Convert to total minutes since midnight for easier comparison
+    const totalMinutes = hour * 60 + minute;
+
+    let message = "hello, aaron.";
+
+    if (totalMinutes >= 285 && totalMinutes <= 719) {
+      message = "good morning, aaron"; // 4:45 AM – 11:59 AM
+    } else if (totalMinutes >= 720 && totalMinutes <= 1019) {
+      message = "good afternoon, aaron"; // 12:00 PM – 4:59 PM
+    } else if (totalMinutes >= 1020 && totalMinutes <= 1139) {
+      message = "good evening, aaron"; // 5:00 PM – 6:59 PM
+    } else {
+      message = "good night, aaron"; // 7:00 PM – 4:44 AM
+    }
+
+    greeting.textContent = message;
+  }
+
+  // Run immediately on load
+  updateGreeting();
+-->
+
+  <div id="music-bar">
+  <input type="range" id="progress-bar" value="0" step="1" />
+  <!-- <button id="next-song">⏭</button> -->
+</div>
+
+
+
 </body>
 </html>
