@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>budget</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ---------- Background (carried over from the source page) ---------- */
+  .background {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(45deg,
+      rgba(74, 144, 226, 0.3) 0%,
+      rgba(143, 211, 244, 0.4) 25%,
+      rgba(162, 102, 246, 0.3) 50%,
+      rgba(248, 113, 113, 0.4) 75%,
+      rgba(251, 191, 36, 0.3) 100%);
+    background-size: 400% 400%;
+    animation: gradientFlow 8s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%,
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: float 6s ease-in-out infinite;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .orb:nth-of-type(1) { width: 120px; height: 120px; top: 18%; left: 12%; animation-delay: 0s; }
+  .orb:nth-of-type(2) { width: 80px;  height: 80px;  top: 62%; right: 16%; animation-delay: -2s; }
+  .orb:nth-of-type(3) { width: 100px; height: 100px; bottom: 12%; left: 20%; animation-delay: -4s; }
+  .orb:nth-of-type(4) { width: 60px;  height: 60px;  top: 38%; right: 32%; animation-delay: -1s; }
+
+  /* ---------- Page frame ---------- */
+  .page {
+    position: relative;
+    z-index: 10;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  /* ---------- Counter: the centerpiece ---------- */
+  .counter {
+    width: 100%;
+    text-align: center;
+  }
+
+  .month {
+    color: rgba(255, 255, 255, 0.75);
+    letter-spacing: 0.25em;
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .amount {
+    font-size: clamp(3.5rem, 13vw, 7.5rem);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,255,255,0.8));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: textGlow 3s ease-in-out infinite alternate;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .amount.over {
+    background: linear-gradient(135deg, rgba(255, 225, 225, 1), rgba(255, 190, 190, 0.85));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .amount-caption {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+    margin-top: 0.9rem;
+  }
+
+  /* Spend meter — same bar treatment as the source page's progress bar */
+  .meter {
+    width: min(420px, 100%);
+    height: 6px;
+    margin: 1.75rem auto 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    height: 100%;
+    width: 0%;
+    background: white;
+    transition: width 0.45s ease;
+  }
+
+  .meter-fill.over { background: rgba(255, 205, 205, 0.95); }
+
+  .meter-labels {
+    display: flex;
+    justify-content: space-between;
+    width: min(420px, 100%);
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* Quick counter buttons */
+  .quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .pill {
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .pill:hover {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  .pill:active { transform: translateY(0); }
+
+  :focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.9);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Journal panel ---------- */
+  .panel {
+    width: 100%;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .panel h2 {
+    color: #2d3748;
+    font-size: 1.6rem;
+    font-weight: 300;
+    letter-spacing: 0.03em;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .entry-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .field {
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 0.95rem;
+    color: #2d3748;
+    padding: 0.8rem 1.2rem;
+    border-radius: 25px;
+    border: 1px solid rgba(45, 55, 72, 0.25);
+    background: rgba(255, 255, 255, 0.45);
+    transition: all 0.3s ease;
+  }
+
+  .field::placeholder { color: rgba(45, 55, 72, 0.5); }
+
+  .field:focus {
+    outline: none;
+    border-color: rgba(45, 55, 72, 0.6);
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  #desc { flex: 1 1 220px; }
+  #amount { flex: 0 1 130px; }
+
+  .dark-pill {
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    color: rgba(45, 55, 72, 0.85);
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(45, 55, 72, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 0.8rem 1.4rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 0 0 auto;
+  }
+
+  .dark-pill:hover {
+    color: rgba(45, 55, 72, 1);
+    border-color: rgba(45, 55, 72, 0.7);
+    background: rgba(255, 255, 255, 0.55);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Log list */
+  .log { list-style: none; max-height: 320px; overflow-y: auto; }
+
+  .log li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 0.5rem 0.9rem 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    color: #2d3748;
+    animation: enter 0.35s ease;
+  }
+
+  .log li:last-child { border-bottom: none; }
+
+  .log .label { flex: 1; font-size: 1rem; }
+
+  .log .date {
+    color: rgba(45, 55, 72, 0.6);
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+  }
+
+  .log .value {
+    font-size: 1.05rem;
+    font-variant-numeric: tabular-nums;
+    color: rgba(45, 55, 72, 0.9);
+  }
+
+  .log .value.refund { color: #1f6b52; }
+
+  .remove {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: none;
+    color: rgba(45, 55, 72, 0.55);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .remove:hover {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(45, 55, 72, 0.35);
+    color: rgba(45, 55, 72, 1);
+  }
+
+  .empty {
+    text-align: center;
+    color: rgba(45, 55, 72, 0.65);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    padding: 1.5rem 0;
+  }
+
+  /* ---------- Back button (matches page2.html) ---------- */
+  .back-button {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+  }
+
+  .back-link {
+    color: rgba(45, 55, 72, 0.8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    padding: 0.8rem 1.5rem;
+    border: 1px solid rgba(45, 55, 72, 0.4);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: rgba(45, 55, 72, 1);
+    border-color: rgba(45, 55, 72, 0.7);
+    background: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  /* ---------- Animations ---------- */
+  @keyframes gradientFlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+    50% { transform: translateY(-20px) scale(1.05); opacity: 0.9; }
+  }
+
+  @keyframes textGlow {
+    0% { text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+    100% { text-shadow: 0 4px 30px rgba(255, 255, 255, 0.3); }
+  }
+
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  @media (max-width: 560px) {
+    .page { padding: 2.5rem 1rem 3.5rem; }
+    .panel { padding: 1.5rem 1.1rem; }
+    #amount { flex: 1 1 120px; }
+    .dark-pill { flex: 1 1 auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="background"></div>
+<div class="orb"></div>
+<div class="orb"></div>
+<div class="orb"></div>
+<div class="orb"></div>
+
+<main class="page">
+
+  <!-- Counter -->
+  <section class="counter">
+    <p class="month" id="month">SEPTEMBER</p>
+    <div class="amount" id="remaining">$0.00</div>
+    <p class="amount-caption" id="caption">left to spend</p>
+
+    <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+    <div class="meter-labels">
+      <span id="spentLabel">$0.00 spent</span>
+      <span id="budgetLabel">of $1,200.00</span>
+    </div>
+
+    <div class="quick">
+      <button class="pill" data-quick="-5">Spend $5</button>
+      <button class="pill" data-quick="-10">Spend $10</button>
+      <button class="pill" data-quick="-25">Spend $25</button>
+      <button class="pill" data-quick="20">Refund $20</button>
+      <button class="pill" id="setBudget">Change budget</button>
+    </div>
+  </section>
+
+  <!-- Journal -->
+  <section class="panel">
+    <h2>Journal</h2>
+
+    <div class="entry-form">
+      <input class="field" id="desc" type="text" placeholder="What was it for?" maxlength="60" />
+      <input class="field" id="amount" type="number" placeholder="Amount" min="0" step="0.01" />
+      <button class="dark-pill" id="addSpend">Log purchase</button>
+      <button class="dark-pill" id="addRefund">Log refund</button>
+    </div>
+
+    <ul class="log" id="log"></ul>
+    <p class="empty" id="empty">Nothing logged yet.<br />Add a purchase or a refund and the counter moves with it.</p>
+  </section>
+
+</main>
+
+<div class="back-button">
+  <a href="index.html" class="back-link">Back</a>
+</div>
+
+<script>
+  const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+  const STORE_KEY = 'budget-tracker';
+
+  const state = {
+    budget: 1200,
+    entries: []   // { id, label, amount, date }  — amount is negative for purchases
+  };
+
+  // Persistence. Wrapped because storage is blocked in some previews and
+  // in Safari private mode — the app still runs, it just forgets.
+  function save() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    } catch (err) { /* storage unavailable; stay in memory */ }
+  }
+
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE_KEY));
+      if (saved && Array.isArray(saved.entries)) {
+        state.entries = saved.entries;
+        if (typeof saved.budget === 'number') state.budget = saved.budget;
+      }
+    } catch (err) { /* nothing saved yet, or storage unavailable */ }
+  }
+
+  const el = {
+    month: document.getElementById('month'),
+    remaining: document.getElementById('remaining'),
+    caption: document.getElementById('caption'),
+    meterFill: document.getElementById('meterFill'),
+    spentLabel: document.getElementById('spentLabel'),
+    budgetLabel: document.getElementById('budgetLabel'),
+    log: document.getElementById('log'),
+    empty: document.getElementById('empty'),
+    desc: document.getElementById('desc'),
+    amount: document.getElementById('amount')
+  };
+
+  el.month.textContent = new Date()
+    .toLocaleString('en-US', { month: 'long' })
+    .toUpperCase();
+
+  const totals = () => {
+    const spent = state.entries
+      .reduce((sum, e) => sum + (e.amount < 0 ? -e.amount : -e.amount), 0);
+    const net = state.entries.reduce((sum, e) => sum + e.amount, 0);
+    return { net, spent: -net };
+  };
+
+  // Number tween so the counter visibly moves when the journal changes
+  let displayed = 0;
+  let frame = null;
+
+  function tweenTo(target) {
+    if (frame) cancelAnimationFrame(frame);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { displayed = target; paintNumber(); return; }
+
+    const start = displayed;
+    const t0 = performance.now();
+    const dur = 420;
+
+    const step = now => {
+      const p = Math.min((now - t0) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      displayed = start + (target - start) * eased;
+      paintNumber();
+      if (p < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+  }
+
+  function paintNumber() {
+    el.remaining.textContent = money.format(displayed);
+  }
+
+  function render() {
+    save();
+    const { spent } = totals();
+    const remaining = state.budget - spent;
+    const over = remaining < 0;
+
+    tweenTo(remaining);
+    el.remaining.classList.toggle('over', over);
+    el.caption.textContent = over ? 'over budget' : 'left to spend';
+
+    const pct = state.budget > 0
+      ? Math.min(Math.max(spent / state.budget, 0), 1) * 100
+      : 0;
+    el.meterFill.style.width = pct + '%';
+    el.meterFill.classList.toggle('over', over);
+
+    el.spentLabel.textContent = money.format(Math.max(spent, 0)) + ' spent';
+    el.budgetLabel.textContent = 'of ' + money.format(state.budget);
+
+    el.log.innerHTML = '';
+    el.empty.style.display = state.entries.length ? 'none' : 'block';
+
+    state.entries.forEach(entry => {
+      const li = document.createElement('li');
+      const refund = entry.amount > 0;
+
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = entry.label;
+
+      const date = document.createElement('span');
+      date.className = 'date';
+      date.textContent = entry.date;
+
+      const value = document.createElement('span');
+      value.className = 'value' + (refund ? ' refund' : '');
+      value.textContent = (refund ? '+' : '−') + money.format(Math.abs(entry.amount));
+
+      const remove = document.createElement('button');
+      remove.className = 'remove';
+      remove.type = 'button';
+      remove.textContent = '×';
+      remove.setAttribute('aria-label', 'Delete ' + entry.label);
+      remove.addEventListener('click', () => {
+        state.entries = state.entries.filter(e => e.id !== entry.id);
+        render();
+      });
+
+      li.append(label, date, value, remove);
+      el.log.appendChild(li);
+    });
+  }
+
+  function addEntry(label, amount) {
+    state.entries.unshift({
+      id: Date.now() + Math.random(),
+      label: label,
+      amount: amount,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    });
+    render();
+  }
+
+  function submit(sign) {
+    const value = parseFloat(el.amount.value);
+    if (!isFinite(value) || value <= 0) {
+      el.amount.focus();
+      return;
+    }
+    const label = el.desc.value.trim() || (sign < 0 ? 'Purchase' : 'Refund');
+    addEntry(label, sign * value);
+    el.desc.value = '';
+    el.amount.value = '';
+    el.desc.focus();
+  }
+
+  document.getElementById('addSpend').addEventListener('click', () => submit(-1));
+  document.getElementById('addRefund').addEventListener('click', () => submit(1));
+
+  [el.desc, el.amount].forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') submit(-1);
+    });
+  });
+
+  document.querySelectorAll('[data-quick]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const amount = parseFloat(btn.dataset.quick);
+      addEntry(amount < 0 ? 'Quick spend' : 'Quick refund', amount);
+    });
+  });
+
+  document.getElementById('setBudget').addEventListener('click', () => {
+    const input = window.prompt('Monthly budget', state.budget);
+    if (input === null) return;
+    const value = parseFloat(input);
+    if (isFinite(value) && value >= 0) {
+      state.budget = value;
+      render();
+    }
+  });
+
+  load();
+  render();
+</script>
+
+</body>
+</html>
